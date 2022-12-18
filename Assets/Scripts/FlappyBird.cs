@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
 
-public class FlappyBird : MonoBehaviour, IPointerDownHandler
+public class FlappyBird : MonoBehaviour
 {
     public Rigidbody2D rb ;
     [SerializeField] Camera cam;
@@ -15,13 +14,14 @@ public class FlappyBird : MonoBehaviour, IPointerDownHandler
     public int score = 0;
     public float moveSpeed;
     public float flapHeight;
-    private bool flapping;
+    public bool flapping=false;
     public GameObject pipeUp;
     public GameObject pipeDown;
 
     private void Awake() {
         pauseScript=FindObjectOfType<PauseScript>();
         pauseScript.onPause();
+        transform.rotation=Quaternion.Euler(0f,0f,0f);
     }
     // Start is called before the first frame update
     void Start()
@@ -34,27 +34,18 @@ public class FlappyBird : MonoBehaviour, IPointerDownHandler
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0) && !pauseScript.isPause){
+        if(flapping && !pauseScript.isPause){
             rb.velocity= new Vector2(rb.velocity.x,flapHeight);
-            //flapping=true;
-        } else if(Input.GetMouseButtonDown(0) && pauseScript.isPause)
-            pauseScript.onResume();
+            flapping=false;
+        }
         
-
+        if(rb.velocity.y>-0.3f)transform.rotation=Quaternion.Euler(0f,0f,45f);
+        else transform.rotation=Quaternion.Euler(0f,0f,-45f);
         if(transform.position.y<-8 || transform.position.y>8){
             Dead();
         }
         cam.transform.position=new Vector3(transform.position.x,
             Mathf.Min(Mathf.Max(transform.position.y,-4.5f),4.5f),cam.transform.position.z);
-    }
-
-    private void FixedUpdate() {
-        // if(flapping){
-        //     rb.velocity= new Vector2(rb.velocity.x,flapHeight);
-        //     flapping=false;
-        // }
-        if(rb.velocity.y>-0.3f)transform.rotation=Quaternion.Euler(0f,0f,45f);
-        else transform.rotation=Quaternion.Euler(0f,0f,-45f);
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
@@ -89,12 +80,5 @@ public class FlappyBird : MonoBehaviour, IPointerDownHandler
         Instantiate(pipeDown, new Vector3(37, 4), transform.rotation);
         Instantiate(scoreSquareBox, new Vector3(38,-1), transform.rotation);
         Instantiate(pipeUp, new Vector3(37, -6), transform.rotation);
-    }
-
-//  currently pressing pause button UI will flap the bird... and then pause the game
-    public void OnPointerDown(PointerEventData eventData)       //to ignore UI
-    {
-        print("OnPointerDown is called");
-        Debug.Log("OnPointerDown is called");
     }
 }

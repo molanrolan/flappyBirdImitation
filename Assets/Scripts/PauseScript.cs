@@ -18,4 +18,9 @@ public class PauseScript : MonoBehaviour
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
     }
+
+    public void setState(){
+        if(isPause) onResume();
+        else onPause();
+    }
 }
